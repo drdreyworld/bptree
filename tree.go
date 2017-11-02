@@ -78,26 +78,24 @@ func (tree *Tree) GetRowsCountInPage() int {
 	return (2 * tree.Mid) - 1
 }
 
-func (tree *Tree) ScanLeafs(fn func(row *Leaf), asc bool) {
+func (tree *Tree) ScanLeafs(fn func(row *Leaf) bool, asc bool) {
 	var leaf *Leaf
 
 	if asc {
-		for leaf = tree.firstLeaf; leaf != nil; leaf = leaf.next {
-			fn(leaf)
+		for leaf = tree.firstLeaf; leaf != nil && fn(leaf); leaf = leaf.next {
 		}
 	} else {
-		for leaf = tree.lastLeaf; leaf != nil; leaf = leaf.prev {
-			fn(leaf)
+		for leaf = tree.lastLeaf; leaf != nil && fn(leaf); leaf = leaf.prev {
 		}
 	}
 }
 
-func (tree *Tree) ScanRows(fn func(row *Row), asc bool) {
-	tree.ScanLeafs(func(leaf *Leaf) {
+func (tree *Tree) ScanRows(fn func(row *Row) bool, asc bool) {
+	tree.ScanLeafs(func(leaf *Leaf) bool {
 		if asc {
-			leaf.ScanRowsASC(fn)
+			return leaf.ScanRowsASC(fn)
 		} else {
-			leaf.ScanRowsDESC(fn)
+			return leaf.ScanRowsDESC(fn)
 		}
 	}, asc)
 }

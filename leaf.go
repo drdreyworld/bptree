@@ -131,18 +131,24 @@ func (item *Leaf) Save() {
 	}
 }
 
-func (item *Leaf) ScanRowsASC(fn func(row *Row)) {
+func (item *Leaf) ScanRowsASC(fn func(row *Row) bool) bool {
 	item.Load()
 	for i := 0; i < item.count; i++ {
-		fn(item.rows.GetRow(i))
+		if !fn(item.rows.GetRow(i)) {
+			return false
+		}
 	}
+	return true
 }
 
-func (item *Leaf) ScanRowsDESC(fn func(row *Row)) {
+func (item *Leaf) ScanRowsDESC(fn func(row *Row) bool) bool {
 	item.Load()
 	for i := item.count; i > 0; i-- {
-		fn(item.rows.GetRow(i))
+		if !fn(item.rows.GetRow(i-1)) {
+			return false
+		}
 	}
+	return true
 }
 
 func (item *Leaf) toBytes() []byte {
